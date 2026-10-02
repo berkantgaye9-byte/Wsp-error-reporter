@@ -20,41 +20,87 @@ h2{margin:4px 0 12px}.hidden{display:none}.success{background:#dcfce7;color:#166
 </style>
 </head>
 <body>
-<header><div class="headerrow"><div><div class="logo">WSP</div><div class="sub">ERROR REPORTER</div></div><div>⚙️</div></div></header>
+
+<header>
+<div class="headerrow">
+<div><div class="logo">WSP</div><div class="sub">ERROR REPORTER</div></div>
+<div>⚙️</div>
+</div>
+</header>
 
 <main>
+
 <section id="new" class="page">
 <div class="card">
-<h2>Nieuwe melding</h2><p class="muted">📷 Foto → ⚠️ Hata → 🏭 Afdeling → 📝 Açıklama → 📤 Gönder</p>
+
+<h2>Nieuwe melding</h2>
+<p class="muted">📷 Foto → ⚠️ Hata → 🏭 Afdeling → 📝 Açıklama → 📤 Gönder</p>
+
 <div class="photo">
 <div>📷 <b>Foto / schermfoto</b></div>
 <div class="muted">Maak een foto of kies een afbeelding</div>
 <input id="photo" type="file" accept="image/*" capture="environment" style="margin-top:12px;width:100%">
 <img id="preview" class="preview">
 </div>
+
 <label>Hata türü / Fouttype</label>
-<select id="type"><option>Afdelingsgroep onbekend</option><option>Hangkleding aanwezig / ontbreekt</option><option>Kleurblok fout</option><option>Pickbon fout</option><option>Scan mislukt</option><option>Route fout</option><option>Bijpak probleem</option><option>Anders</option></select>
-<label>Naam medewerker (optioneel)</label><input id="worker" class="input" placeholder="Bijv. Berkant"><label>Afdeling</label>
-<select id="dept"><option>Orderpick</option><option>Scan</option><option>Folding</option><option>Inpak</option><option>Productievloer</option><option>Anders</option></select>
-<label>Beschrijving</label><textarea id="desc" placeholder="Beschrijf wat er gebeurde..."></textarea>
-<button class="btn blue" onclick="saveReport()">➤  Rapport opslaan</button>
+<select id="type">
+<option>Afdelingsgroep onbekend</option>
+<option>Hangkleding aanwezig / ontbreekt</option>
+<option>Kleurblok fout</option>
+<option>Pickbon fout</option>
+<option>Scan mislukt</option>
+<option>Route fout</option>
+<option>Bijpak probleem</option>
+<option>Anders</option>
+</select>
+
+<label>Naam medewerker (optioneel)</label>
+<input id="worker" class="input" placeholder="Bijv. Berkant">
+
+<label>Afdeling</label>
+<select id="dept">
+<option>Orderpick</option>
+<option>Scan</option>
+<option>Folding</option>
+<option>Inpak</option>
+<option>Productievloer</option>
+<option>Anders</option>
+</select>
+
+<label>Beschrijving</label>
+<textarea id="desc" placeholder="Beschrijf wat er gebeurde..."></textarea>
+
+<button class="btn blue" onclick="saveReport()">➤ Rapport opslaan</button>
+
 </div>
 </section>
 
 <section id="reports" class="page hidden">
-<div class="card"><h2>Mijn rapporten</h2><div id="list"></div></div>
+<div class="card">
+<h2>Mijn rapporten</h2>
+<div id="list"></div>
+</div>
 </section>
 
 <section id="stats" class="page hidden">
-<div class="card"><h2>Dashboard</h2>
+<div class="card">
+<h2>Dashboard</h2>
 <div class="grid">
 <div class="stat red"><span>Scan errors</span><b id="s1">0</b></div>
 <div class="stat orange"><span>Kleurblok</span><b id="s2">0</b></div>
 <div class="stat yellow"><span>Pickbon</span><b id="s3">0</b></div>
 <div class="stat green"><span>Overige</span><b id="s4">0</b></div>
-</div></div>
-<div class="card"><h2>Vandaag</h2><p id="today">0 meldingen</p><p class="muted">Deze prototypeversie bewaart gegevens lokaal op dit toestel.</p></div>
+</div>
+</div>
+
+<div class="card">
+<h2>Vandaag</h2>
+<p id="today">0 meldingen</p>
+<p class="muted">Deze prototypeversie bewaart gegevens lokaal op dit toestel.</p>
+</div>
 </section>
+
 </main>
 
 <nav>
@@ -63,10 +109,25 @@ h2{margin:4px 0 12px}.hidden{display:none}.success{background:#dcfce7;color:#166
 <button onclick="show('stats',this)">▥<br>Statistieken</button>
 </nav>
 
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+
 <script>
-const FIREBASE_API_KEY = "AIzaSyA6wJsohO3-T4hfOLEyxGKaS6VP91iR79M";
-const FIREBASE_PROJECT = "wsp-error-reporter";
-const FIRESTORE_BASE = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT}/databases/(default)/documents`;
+const firebaseConfig = {
+  apiKey: "AIzaSyA6wJsohO3-T4hfOLEyxGKaS6VP91iR79M",
+  authDomain: "wsp-error-reporter.firebaseapp.com",
+  projectId: "wsp-error-reporter",
+  storageBucket: "wsp-error-reporter.firebasestorage.app",
+  messagingSenderId: "947965268665",
+  appId: "1:947965268665:web:21ea620ec360180dee0168",
+  measurementId: "G-G4HYY0GGHZ"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+</script>
+
+<script>
 
 let reports = [];
 let selectedImage = "";
@@ -76,169 +137,380 @@ const $ = id => document.getElementById(id);
 $("photo").onchange = e => {
   const f = e.target.files[0];
   if (!f) return;
+
   const r = new FileReader();
+
   r.onload = () => {
     $("preview").src = r.result;
     $("preview").style.display = "block";
     selectedImage = r.result;
   };
+
   r.readAsDataURL(f);
 };
 
+
 function compressImage(dataUrl) {
+
   return new Promise(resolve => {
+
     if (!dataUrl) return resolve("");
+
     const img = new Image();
+
     img.onload = () => {
-      const max = 800;
-      let w = img.width, h = img.height;
-      if (w > h && w > max) { h = Math.round(h * max / w); w = max; }
-      else if (h >= w && h > max) { w = Math.round(w * max / h); h = max; }
+
+      const max = 700;
+
+      let w = img.width;
+      let h = img.height;
+
+      if (w > h && w > max) {
+        h = Math.round(h * max / w);
+        w = max;
+      }
+
+      else if (h >= w && h > max) {
+        w = Math.round(w * max / h);
+        h = max;
+      }
+
       const c = document.createElement("canvas");
-      c.width = w; c.height = h;
-      c.getContext("2d").drawImage(img, 0, 0, w, h);
-      resolve(c.toDataURL("image/jpeg", 0.55));
+
+      c.width = w;
+      c.height = h;
+
+      c.getContext("2d").drawImage(img,0,0,w,h);
+
+      resolve(c.toDataURL("image/jpeg",0.45));
     };
+
+    img.onerror = () => resolve("");
+
     img.src = dataUrl;
   });
 }
 
-const str = v => ({ stringValue: String(v ?? "") });
-const docFields = r => ({
-  reportId: str(r.reportId),
-  worker: str(r.worker),
-  type: str(r.type),
-  dept: str(r.dept),
-  desc: str(r.desc),
-  date: str(r.date),
-  status: str(r.status),
-  img: str(r.img || "")
-});
 
 async function saveReport() {
+
   const btn = document.querySelector(".btn.blue");
+
   btn.disabled = true;
   btn.textContent = "⏳ Versturen...";
+
   try {
+
     const now = new Date();
-    const reportId = "WSP-" + now.getFullYear() + "-" + String(Date.now()).slice(-6);
+
+    const reportId =
+      "WSP-" +
+      now.getFullYear() +
+      "-" +
+      String(Date.now()).slice(-6);
+
     const img = await compressImage(selectedImage);
 
-    // Keep the document safely below Firestore's document-size limit.
-    if (img.length > 900000) throw new Error("Foto is te groot");
-
-    const r = {
-      reportId,
-      worker: $("worker").value.trim() || "Onbekend",
-      type: $("type").value,
-      dept: $("dept").value,
-      desc: $("desc").value.trim() || "Geen extra beschrijving.",
-      date: now.toLocaleString("nl-NL"),
-      status: "Nieuw",
-      img
-    };
-
-    const url = FIRESTORE_BASE + "?key=" + encodeURIComponent(FIREBASE_API_KEY);
-    const res = await fetch(url, {
-      method: "POST",
-      headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({ fields: docFields(r) })
-    });
-
-    if (!res.ok) {
-      const t = await res.text();
-      throw new Error(t);
+    if (img.length > 700000) {
+      throw new Error("Foto is te groot. Maak een nieuwe foto.");
     }
 
-    alert("Rapport verzonden! ID: " + reportId);
+    const r = {
+
+      reportId,
+
+      worker:
+        $("worker").value.trim() ||
+        "Onbekend",
+
+      type:
+        $("type").value,
+
+      dept:
+        $("dept").value,
+
+      desc:
+        $("desc").value.trim() ||
+        "Geen extra beschrijving.",
+
+      date:
+        now.toLocaleString("nl-NL"),
+
+      status:
+        "Nieuw",
+
+      img,
+
+      createdAt:
+        firebase.firestore.FieldValue.serverTimestamp()
+    };
+
+
+    await db
+      .collection("reports")
+      .add(r);
+
+
+    alert(
+      "Rapport verzonden! ID: " +
+      reportId
+    );
+
+
     $("desc").value = "";
     $("worker").value = "";
     $("photo").value = "";
+
     $("preview").style.display = "none";
+
     selectedImage = "";
+
+
     await loadReports();
-    show("reports", document.querySelectorAll("nav button")[1]);
+
+    show(
+      "reports",
+      document.querySelectorAll("nav button")[1]
+    );
+
+
   } catch (e) {
+
     console.error(e);
-    alert("Verzenden mislukt: " + (e.message || e));
+
+    alert(
+      "Verzenden mislukt: " +
+      (e.message ||
+      "Firebase/internet controleren.")
+    );
+
   } finally {
+
     btn.disabled = false;
-    btn.textContent = "➤  Rapport opslaan";
+
+    btn.textContent =
+      "➤ Rapport opslaan";
   }
 }
 
+
 function fromDoc(d) {
-  const f = d.fields || {};
+
+  const f = d.data() || {};
+
   return {
-    id: d.name || "",
-    reportId: f.reportId?.stringValue || "",
-    worker: f.worker?.stringValue || "",
-    type: f.type?.stringValue || "",
-    dept: f.dept?.stringValue || "",
-    desc: f.desc?.stringValue || "",
-    date: f.date?.stringValue || "",
-    status: f.status?.stringValue || "",
-    img: f.img?.stringValue || ""
+
+    id: d.id,
+
+    reportId:
+      f.reportId || "",
+
+    worker:
+      f.worker || "",
+
+    type:
+      f.type || "",
+
+    dept:
+      f.dept || "",
+
+    desc:
+      f.desc || "",
+
+    date:
+      f.date || "",
+
+    status:
+      f.status || "",
+
+    img:
+      f.img || ""
   };
 }
 
+
 async function loadReports() {
+
   try {
-    const url = FIRESTORE_BASE + "?key=" + encodeURIComponent(FIREBASE_API_KEY) + "&pageSize=100";
-    const res = await fetch(url);
-    if (!res.ok) throw new Error(await res.text());
-    const data = await res.json();
-    reports = (data.documents || []).map(fromDoc).reverse();
+
+    const snap =
+      await db
+        .collection("reports")
+        .orderBy("createdAt","desc")
+        .limit(100)
+        .get();
+
+    reports =
+      snap.docs.map(fromDoc);
+
     render();
+
   } catch (e) {
-    console.error(e);
-    $("list").innerHTML = '<p class="muted">Firebase verisi okunamadı. Controleer Rules en internet.</p>';
+
+    try {
+
+      const snap =
+        await db
+          .collection("reports")
+          .limit(100)
+          .get();
+
+      reports =
+        snap.docs.map(fromDoc).reverse();
+
+      render();
+
+    } catch (e2) {
+
+      console.error(e2);
+
+      $("list").innerHTML =
+        '<p class="muted">Firebase verisi okunamadı.</p>';
+    }
   }
 }
 
+
 function esc(v) {
-  return String(v ?? "").replace(/[&<>"']/g, m => ({
-    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
-  }[m]));
+
+  return String(v ?? "")
+    .replace(/[&<>"']/g, m => ({
+      "&":"&amp;",
+      "<":"&lt;",
+      ">":"&gt;",
+      '"':"&quot;",
+      "'":"&#39;"
+    }[m]));
 }
 
+
 function render() {
-  const list = $("list");
-  list.innerHTML = reports.length ? "" : '<p class="muted">Nog geen rapporten.</p>';
+
+  const list =
+    $("list");
+
+  list.innerHTML =
+    reports.length
+      ? ""
+      : '<p class="muted">Nog geen rapporten.</p>';
+
+
   reports.forEach(r => {
-    list.innerHTML += `<div class="report">
-      ${r.img ? `<img class="thumb" src="${r.img}">` : '<div class="thumb">📷</div>'}
-      <div><b>${esc(r.type)}</b>
-      <div class="muted">${esc(r.reportId)} · ${esc(r.worker)}</div>
-      <span class="tag">${esc(r.dept)}</span>
-      <div class="muted">${esc(r.date)}</div></div>
+
+    list.innerHTML +=
+    `<div class="report">
+
+      ${
+        r.img
+        ? `<img class="thumb" src="${r.img}">`
+        : '<div class="thumb">📷</div>'
+      }
+
+      <div>
+
+        <b>${esc(r.type)}</b>
+
+        <div class="muted">
+          ${esc(r.reportId)} · ${esc(r.worker)}
+        </div>
+
+        <span class="tag">
+          ${esc(r.dept)}
+        </span>
+
+        <div class="muted">
+          ${esc(r.date)}
+        </div>
+
+      </div>
+
     </div>`;
   });
 
-  let c = {scan:0,kleur:0,pick:0,other:0};
+
+  let c = {
+    scan:0,
+    kleur:0,
+    pick:0,
+    other:0
+  };
+
+
   reports.forEach(r => {
-    if ((r.type||"").includes("Scan")) c.scan++;
-    else if ((r.type||"").includes("Kleurblok")) c.kleur++;
-    else if ((r.type||"").includes("Pickbon")) c.pick++;
-    else c.other++;
+
+    if (
+      (r.type || "")
+      .includes("Scan")
+    )
+      c.scan++;
+
+    else if (
+      (r.type || "")
+      .includes("Kleurblok")
+    )
+      c.kleur++;
+
+    else if (
+      (r.type || "")
+      .includes("Pickbon")
+    )
+      c.pick++;
+
+    else
+      c.other++;
   });
+
+
   $("s1").textContent = c.scan;
   $("s2").textContent = c.kleur;
   $("s3").textContent = c.pick;
   $("s4").textContent = c.other;
-  const d = new Date().toLocaleDateString("nl-NL");
-  $("today").textContent = reports.filter(r => (r.date||"").startsWith(d)).length + " meldingen";
+
+
+  const d =
+    new Date()
+    .toLocaleDateString("nl-NL");
+
+  $("today").textContent =
+    reports.filter(
+      r =>
+        (r.date || "")
+        .startsWith(d)
+    ).length +
+    " meldingen";
 }
 
+
 function show(id, btn) {
-  document.querySelectorAll(".page").forEach(x => x.classList.add("hidden"));
-  $(id).classList.remove("hidden");
-  document.querySelectorAll("nav button").forEach(x => x.classList.remove("active"));
-  if (btn) btn.classList.add("active");
+
+  document
+    .querySelectorAll(".page")
+    .forEach(
+      x => x.classList.add("hidden")
+    );
+
+  $(id)
+    .classList.remove("hidden");
+
+
+  document
+    .querySelectorAll("nav button")
+    .forEach(
+      x => x.classList.remove("active")
+    );
+
+
+  if (btn)
+    btn.classList.add("active");
+
+
   render();
 }
 
+
 loadReports();
+
 </script>
+
 </body>
 </html>
