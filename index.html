@@ -28,43 +28,43 @@ h2{margin:4px 0 12px}.hidden{display:none}.success{background:#dcfce7;color:#166
 </div>
 </header>
 
-<main>
+let c = {
+  scan: 0,
+  kleur: 0,
+  pick: 0,
+  other: 0
+};
 
-<section id="new" class="page">
-<div class="card">
+reports.forEach(r => {
 
-<h2>Nieuwe melding</h2>
-<p class="muted">📷 Foto → ⚠️ Hata → 🏭 Afdeling → 📝 Açıklama → 📤 Gönder</p>
+  const type = (r.type || "").toLowerCase();
 
-<div class="photo">
-<div>📷 <b>Foto / schermfoto</b></div>
-<div class="muted">Maak een foto of kies een afbeelding</div>
-<input id="photo" type="file" accept="image/*" capture="environment" style="margin-top:12px;width:100%">
-<img id="preview" class="preview">
-</div>
+  if (
+    type.includes("scan") ||
+    type.includes("afdelingsgroep")
+  ) {
+    c.scan++;
 
-<label>Hata türü / Fouttype</label>
-<select id="type">
-<option>Afdelingsgroep onbekend</option>
-<option>Hangkleding aanwezig / ontbreekt</option>
-<option>Kleurblok fout</option>
-<option>Pickbon fout</option>
-<option>Scan mislukt</option>
-<option>Route fout</option>
-<option>Bijpak probleem</option>
-<option>Anders</option>
-</select>
+  } else if (
+    type.includes("kleurblok")
+  ) {
+    c.kleur++;
 
-<label>Naam medewerker (optioneel)</label>
-<input id="worker" class="input" placeholder="Bijv. Berkant">
+  } else if (
+    type.includes("pickbon")
+  ) {
+    c.pick++;
 
-<label>Afdeling</label>
-<select id="dept">
-<option>Orderpick</option>
-<option>Scan</option>
-<option>Folding</option>
-<option>Inpak</option>
-<option>Productievloer</option>
+  } else {
+    c.other++;
+  }
+
+});
+
+$("s1").textContent = c.scan;
+$("s2").textContent = c.kleur;
+$("s3").textContent = c.pick;
+$("s4").textContent = c.other;
 <option>Anders</option>
 </select>
 
